@@ -474,7 +474,7 @@ class MidiPreprocessor:
                             C = self.num_classes -1
                             print("Importing unknown song ", _name)
 
-                            X, Y, I, T, V, D = load_rolls(_path, _name)
+                            X, Y, I, T, V, D = self.load_rolls(_path, _name)
 
                             if X is not None and Y is not None:
                                 X_list.append(X)
