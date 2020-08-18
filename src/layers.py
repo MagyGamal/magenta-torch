@@ -3,6 +3,11 @@ import torch.nn as nn
 from torch.distributions.categorical import Categorical
 
 
+import torch
+import torch.nn as nn
+from torch.distributions.categorical import Categorical
+
+
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 class BiLSTMEncoder(nn.Module):
@@ -30,6 +35,9 @@ class BiLSTMEncoder(nn.Module):
         self.softplus = nn.Softplus()
 
     def forward(self, input, h0, c0):
+        cuda0 = torch.device('cuda:0')
+        input=input.cuda(cuda0)
+
         batch_size = input.size(1)
         _, (h_n, c_n) = self.bilstm(input, (h0, c0))
         h_n = h_n.view(self.num_layers, 2, batch_size, -1)[-1].view(batch_size, -1)
@@ -78,14 +86,15 @@ class HierarchicalLSTMDecoder(nn.Module):
 
     def forward(self, target, latent, h0, c0, use_teacher_forcing=True, temperature=1.0):
         batch_size = target.size(1)
-
         out = torch.zeros(self.max_seq_length, batch_size, self.input_size, dtype=torch.float, device=device)
         # Initialie start note
         prev_note = torch.zeros(1, batch_size, self.input_size, dtype=torch.float, device=device)
 
         # Conductor produces an embedding vector for each subsequence
         for embedding_idx in range(self.num_embeddings):
+            
             embedding, (h0, c0) = self.conductor(latent.unsqueeze(0), (h0, c0))
+            print("shape of embedding:",embedding.shape)
             embedding = self.conductor_embeddings(embedding)
 
             # Initialize lower decoder hidden state
@@ -112,6 +121,7 @@ class HierarchicalLSTMDecoder(nn.Module):
 
                     idx = embedding_idx * self.seq_length + note_idx
                     out[idx, :, :] = prev_note.squeeze()
+        print("out",out.shape)
         return out
     
     def reconstruct(self, latent, h0, c0, temperature):
@@ -119,7 +129,8 @@ class HierarchicalLSTMDecoder(nn.Module):
         Reconstruct the actual midi using categorical distribution
         """
         one_hot = torch.eye(self.input_size).to(device)
-        batch_size = 1
+        #batch_size = 98
+        batch_size = h0.size(1)
         out = torch.zeros(self.max_seq_length, batch_size, self.input_size, dtype=torch.float, device=device)
         prev_note = torch.zeros(1, batch_size, self.input_size, dtype=torch.float, device=device)
         for embedding_idx in range(self.num_embeddings):
@@ -132,8 +143,9 @@ class HierarchicalLSTMDecoder(nn.Module):
                 prev_note, h0_dec = self.lstm(e, h0_dec)
                 prev_note = self.out(prev_note)
                 prev_note = Categorical(prev_note / temperature).sample()
-                prev_note = self.one_hot(prev_note)
-                out[idx, :, :] = prev_note.squeeze()
+                # print("prev",prev_note)
+                prev_note = one_hot[prev_note]
+                out[note_idx, :, :] = prev_note.squeeze()
         return out
                 
 
