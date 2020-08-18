@@ -3,11 +3,6 @@ import torch.nn as nn
 from torch.distributions.categorical import Categorical
 
 
-import torch
-import torch.nn as nn
-from torch.distributions.categorical import Categorical
-
-
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 class BiLSTMEncoder(nn.Module):
