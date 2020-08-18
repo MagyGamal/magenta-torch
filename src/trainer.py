@@ -36,7 +36,10 @@ class Trainer:
         self.print_every = print_every
         self.checkpoint_every = checkpoint_every
         self.output_dir = output_dir
-        
+        self.loss=[]
+        self.kldiv=[]
+        self.epochs=[]
+        self.iterations=[]
     def inverse_sigmoid(self,step):
         """
         Compute teacher forcing probability with inverse sigmoid
@@ -108,10 +111,14 @@ class Trainer:
                     val_loss.append(torch.mean(torch.tensor(batch_loss)))
                     val_kl.append(torch.mean(torch.tensor(batch_kl)))
                 loss_avg = torch.mean(torch.tensor(val_loss))
+                self.loss.append(loss_avg)
                 div = torch.mean(torch.tensor(val_kl))
+                self.kldiv.append(div)
+                self.epochs.append(epoch)
+                self.iterations.append(iter)
                 print('Validation')
                 print('Epoch: %d, iteration: %d, Average loss: %.4f, KL Divergence: %.4f' % (epoch, iter, loss_avg, div))
-                    
+
         torch.save(open('outputs/train_loss_musicvae_batch', 'wb'), torch.tensor(train_loss))
         torch.save(open('outputs/val_loss_musicvae_batch', 'wb'), torch.tensor(val_loss))
         torch.save(open('outputs/train_kl_musicvae_batch', 'wb'), torch.tensor(train_kl))
