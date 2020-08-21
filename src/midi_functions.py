@@ -67,7 +67,7 @@ def rolls_to_midi(pianoroll,
 
     #bpm is in quarter notes, so scale accordingly
 #     bpm = bpm * (smallest_note / 4)
-
+    #pianoroll = pianoroll.to("cpu").numpy()
     pianoroll = np.pad(np.copy(pianoroll), ((0,0),(low_crop,num_notes-high_crop)), mode='constant', constant_values=0)
 
     if not os.path.exists(save_folder):
