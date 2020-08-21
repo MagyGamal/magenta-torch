@@ -79,7 +79,7 @@ class HierarchicalLSTMDecoder(nn.Module):
             nn.Softmax(dim=2)
         )
 
-    def forward(self, target, latent, h0, c0, use_teacher_forcing=True, temperature=1.0):
+    def forward(self, target, latent, h0, c0, use_teacher_forcing=True, temperature=500.0):
         batch_size = target.size(1)
         out = torch.zeros(self.max_seq_length, batch_size, self.input_size, dtype=torch.float, device=device)
         # Initialie start note
