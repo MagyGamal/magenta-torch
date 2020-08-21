@@ -65,7 +65,7 @@ evaluation:
     test_songs: 'pickles/train_paths.pickle'
     test_tempos: 'pickles/T_train.pickle'
     batch_size: *batchsize
-    temperature: 1.0
+    temperature: 500.0
     reconstruction:
         attach_method: '1hot-category'
         song_name: '98_Degrees_-_The_Hardest_Thing'
