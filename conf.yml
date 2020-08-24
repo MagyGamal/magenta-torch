@@ -4,13 +4,13 @@ preprocessor:
         - Pop
     pickle_store_folder: 'pickles'
     include_unknown: True
-    only_unknown: True
+    only_unknown: False
     low_crop: 24 
     high_crop: 84
     num_notes: 128
     smallest_note: 16
     max_velocity: 127
-    include_only_monophonic_instruments: False
+    include_only_monophonic_instruments: True
     max_voices_per_track: 1
     max_voices: 4
     include_silent_note: True
