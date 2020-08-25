@@ -86,7 +86,7 @@ class HierarchicalLSTMDecoder(nn.Module):
             nn.Softmax(dim=2)
         )
 
-    def forward(self, target, latent, h0, c0, use_teacher_forcing=True, temperature=500.0):
+    def forward(self, target, latent, h0, c0, use_teacher_forcing=True, temperature=1.0):
         print("latent",latent.shape)
         print("hidden initial decoder",h0.shape)
         print("cell state decoder",c0.shape)
