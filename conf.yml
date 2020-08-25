@@ -10,7 +10,7 @@ preprocessor:
     num_notes: 128
     smallest_note: 16
     max_velocity: 127
-    include_only_monophonic_instruments: True
+    include_only_monophonic_instruments: False
     max_voices_per_track: 1
     max_voices: 4
     include_silent_note: True
@@ -65,7 +65,7 @@ evaluation:
     test_songs: 'pickles/train_paths.pickle'
     test_tempos: 'pickles/T_train.pickle'
     batch_size: *batchsize
-    temperature: 500.0
+    temperature: 1.0
     reconstruction:
         attach_method: '1hot-category'
         song_name: '98_Degrees_-_The_Hardest_Thing'
