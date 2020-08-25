@@ -39,7 +39,7 @@ class Trainer:
         self.loss=[]
         self.kldiv=[]
         self.epochs=[]
-        self.iterations=[]
+        
     def inverse_sigmoid(self,step):
         """
         Compute teacher forcing probability with inverse sigmoid
@@ -76,7 +76,7 @@ class Trainer:
         for epoch in range(start_epoch, end_epoch):
             batch_loss, batch_kl = [], []
             model.train()
-            
+            self.epochs.append(epoch)
             for idx, batch in enumerate(train_data):
                 batch = batch.transpose(0, 1).squeeze()
                 batch.to(device)
@@ -94,7 +94,10 @@ class Trainer:
                     self.save_checkpoint(model, epoch, iter)
             
             train_loss.append(torch.mean(torch.tensor(batch_loss)))
+   
+            self.loss.append(train_loss)
             train_kl.append(torch.mean(torch.tensor(batch_kl)))
+            self.kldiv.append(train_kl)
             
             self.save_checkpoint(model, epoch, iter)
             
