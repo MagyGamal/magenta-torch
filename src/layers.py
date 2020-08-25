@@ -32,12 +32,19 @@ class BiLSTMEncoder(nn.Module):
     def forward(self, input, h0, c0):
         cuda0 = torch.device('cuda:0')
         input=input.cuda(cuda0)
-
+        print("input to encoder",input.shape)
+        print("hdden states",h0.shape)
+        print("cell state",c0)
         batch_size = input.size(1)
         _, (h_n, c_n) = self.bilstm(input, (h0, c0))
+        print("output",_.shape)
+        print("hidden after encoder",h_n.shape)
+        print("cell state after encoder",c_n.shape)
         h_n = h_n.view(self.num_layers, 2, batch_size, -1)[-1].view(batch_size, -1)
         mu = self.mu(h_n)
+        print("mu",mu.shape)
         sigma = self.softplus(self.sigma(h_n))
+        print("sigma",simga.shape)
         return mu, sigma
 
     def init_hidden(self, batch_size=1):
@@ -80,22 +87,25 @@ class HierarchicalLSTMDecoder(nn.Module):
         )
 
     def forward(self, target, latent, h0, c0, use_teacher_forcing=True, temperature=500.0):
+        print("latent",latent.shape)
+        print("hidden initial decoder",h0.shape)
+        print("cell state decoder",c0.shape)
         batch_size = target.size(1)
         out = torch.zeros(self.max_seq_length, batch_size, self.input_size, dtype=torch.float, device=device)
         # Initialie start note
         prev_note = torch.zeros(1, batch_size, self.input_size, dtype=torch.float, device=device)
-
+        print("prev_note",prev_note.shape)
         # Conductor produces an embedding vector for each subsequence
         for embedding_idx in range(self.num_embeddings):
-            
+            print("latent unsqueeze",latent.unsqueeze(0).shape)
             embedding, (h0, c0) = self.conductor(latent.unsqueeze(0), (h0, c0))
-            print("shape of embedding:",embedding.shape)
+            print("output of conductor:",embedding.shape)
             embedding = self.conductor_embeddings(embedding)
-
+            print("output of conductor embedding",embedding.shape)
             # Initialize lower decoder hidden state
             h0_dec = (torch.randn(self.num_layers, batch_size, self.hidden_size, dtype=torch.float, device=device),
                       torch.randn(self.num_layers, batch_size, self.hidden_size, dtype=torch.float, device=device))
-
+            print("hidden_state",h0_dec.shape)
             # Decoder produces sequence of distributions over output tokens
             # for each subsequence where at each step the current
             # conductor embedding is concatenated with the previous output
@@ -111,9 +121,11 @@ class HierarchicalLSTMDecoder(nn.Module):
             else:
                 for note_idx in range(self.seq_length):
                     e = torch.cat((prev_note, embedding), -1)
+                    print("concatenation",e.shape)
                     prev_note, h0_dec = self.lstm(e, h0_dec)
+                    print("output of decoder",prev_note.shape)
                     prev_note = self.out(prev_note)
-
+                    print("final output for every note", prev_note.shape)
                     idx = embedding_idx * self.seq_length + note_idx
                     out[idx, :, :] = prev_note.squeeze()
         print("out",out.shape)
