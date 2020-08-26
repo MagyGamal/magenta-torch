@@ -36,9 +36,6 @@ class Trainer:
         self.print_every = print_every
         self.checkpoint_every = checkpoint_every
         self.output_dir = output_dir
-        self.loss=[]
-        self.kldiv=[]
-        self.epochs=[]
         
     def inverse_sigmoid(self,step):
         """
@@ -95,38 +92,38 @@ class Trainer:
             
             train_loss.append(torch.mean(torch.tensor(batch_loss)))
    
-            self.loss.append(train_loss)
+            
             train_kl.append(torch.mean(torch.tensor(batch_kl)))
-            self.kldiv.append(train_kl)
+            
             
             self.save_checkpoint(model, epoch, iter)
             
-            if val_data is not None:
-                batch_loss, batch_kl = [], []
-                with torch.no_grad():
-                    model.eval()
-                    for idx, batch in enumerate(val_data):
-                        batch.to(device)
-                        batch = batch.transpose(0, 1).squeeze()
-                        elbo, kl = self.compute_loss(iter, model, batch, False)
-                        batch_loss.append(elbo)
-                        batch_kl.append(kl)
-                    val_loss.append(torch.mean(torch.tensor(batch_loss)))
-                    val_kl.append(torch.mean(torch.tensor(batch_kl)))
-                loss_avg = torch.mean(torch.tensor(val_loss))
-                self.loss.append(loss_avg)
-                div = torch.mean(torch.tensor(val_kl))
-                self.kldiv.append(div)
-                self.epochs.append(epoch)
-                self.iterations.append(iter)
-                print('Validation')
-                print('Epoch: %d, iteration: %d, Average loss: %.4f, KL Divergence: %.4f' % (epoch, iter, loss_avg, div))
+            #if val_data is not None:
+            #   batch_loss, batch_kl = [], []
+                #with torch.no_grad():
+                 #   model.eval()
+                  #  for idx, batch in enumerate(val_data):
+                   #     batch.to(device)
+                    #    batch = batch.transpose(0, 1).squeeze()
+                     #   elbo, kl = self.compute_loss(iter, model, batch, False)
+                      #  batch_loss.append(elbo)
+                       # batch_kl.append(kl)
+                    #val_loss.append(torch.mean(torch.tensor(batch_loss)))
+                    #val_kl.append(torch.mean(torch.tensor(batch_kl)))
+                #loss_avg = torch.mean(torch.tensor(val_loss))
+               # self.loss.append(loss_avg)
+                #div = torch.mean(torch.tensor(val_kl))
+            #    self.kldiv.append(div)
+             #   self.epochs.append(epoch)
+              #  self.iterations.append(iter)
+               # print('Validation')
+                #print('Epoch: %d, iteration: %d, Average loss: %.4f, KL Divergence: %.4f' % (epoch, iter, loss_avg, div))
 
-        torch.save(open('outputs/train_loss_musicvae_batch', 'wb'), torch.tensor(train_loss))
-        torch.save(open('outputs/val_loss_musicvae_batch', 'wb'), torch.tensor(val_loss))
-        torch.save(open('outputs/train_kl_musicvae_batch', 'wb'), torch.tensor(train_kl))
-        torch.save(open('outputs/val_kl_musicvae_batch', 'wb'), torch.tensor(val_kl))
-        
+       # torch.save(open('outputs/train_loss_musicvae_batch', 'wb'), torch.tensor(train_loss))
+        #torch.save(open('outputs/val_loss_musicvae_batch', 'wb'), torch.tensor(val_loss))
+       # torch.save(open('outputs/train_kl_musicvae_batch', 'wb'), torch.tensor(train_kl))
+        #torch.save(open('outputs/val_kl_musicvae_batch', 'wb'), torch.tensor(val_kl))
+        return train_loss, train_kl
     def save_checkpoint(self, model, epoch, iter):
         print('Saving checkpoint')
         Checkpoint(model=model,
@@ -168,7 +165,7 @@ class Trainer:
             print('Starting epoch %d' % epoch)
 
         model.to(device)
-        self.train_epochs(model, epoch, iter, epoch+epochs, train_data, val_data)
+        return self.train_epochs(model, epoch, iter, epoch+epochs, train_data, val_data)
                 
                         
                         
