@@ -3,7 +3,8 @@ import os
 import pickle
 import sys
 import yaml
-
+import matplotlib.pyplot as plt
+import numpy as np
 sys.path.append(".")
 
 from torch.utils.data import DataLoader
@@ -49,8 +50,15 @@ def train(model, trainer, train_data, val_data, epochs, resume):
     """
     Train a model
     """
-    trainer.train(model, train_data, None, epochs, resume, val_data)
-
+    train_loss, train_kl = trainer.train(model, train_data, None, epochs, resume, val_data)
+    tr_loss = [i.numpy().tolist() for i in train_loss]
+    tr_kl = [i.numpy().tolist() for i in train_kl]
+    print(type(tr_kl[0]))
+    print(tr_loss, tr_kl)
+    fig, ax = plt.subplots()
+    ax.plot(np.asarray(tr_loss))
+    fig2, ax2 = plt.subplots()
+    ax2.plot(np.asarray(tr_kl))
 
 def main(args):
     model_params = None
@@ -71,8 +79,7 @@ def main(args):
     trainer = Trainer(**trainer_params)
 
     train(model, trainer, train_data, val_data, args.epochs, args.resume)
-
-
+    print()
 if __name__ == '__main__':
     args = parser.parse_args()
     main(args)
